@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 from selenium import webdriver as uc
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -309,6 +310,9 @@ class Search_Job():
         self.driver.find_element(
             by=By.XPATH, value='/html/body/main/section[1]/div/section/div[2]/button[2]').click()
         sleep(2)
+        print(O + "[" + C + "*" + O + "] " + C +
+              "Loading data...")
+        self.scrolldown()
         jobs_number = self.driver.find_element(
             by=By.XPATH, value='/html/body/div[1]/div/main/div/h1/span[1]').text
         jobs_location = self.driver.find_element(
@@ -321,7 +325,7 @@ class Search_Job():
         print(O + "[" + C + "*" + O + "] " + C +
               "New Jobs: " + G + new_jobs + W)
         print("")
-        sleep(4)
+        sleep(3.5)
         self.ShowingAllJobs()
 
     def ShowingAllJobs(self):
@@ -335,15 +339,30 @@ class Search_Job():
             i = 1
             for job in jobs:
                 text = job.text
-                print("=================")
+                job_link = job.find_element(
+                    by=By.TAG_NAME, value='a').get_attribute("href")
+                job_title = text.split("\n")[0]
+                job_location = text.split("\n")[3]
+                company_name = text.split("\n")[2]
+
+                print()
+                print(
+                    G + "--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--")
                 print("")
                 print(O + "[" + C, i, O + "]" + W)
-                # print(text)
-                print(O + "Company Name: " + C + text.split("\n")[2])
-                print(O + "Job Name: " + C + text.split("\n")[0])
-                print(O + "Company Location: " + C + text.split("\n")[3])
+                print(O + "Company Name: " + C + company_name)
+                print(O + "Job Name: " + C + job_title)
+                print(O + "Company Location: " + C + job_location)
+                print()
+                print(O + "Job Link: " + C + job_link)
                 print("")
                 i = i + 1
+                data = []
+                data.append(company_name)
+                data.append(job_title)
+                data.append(job_location)
+                data.append(job_link)
+                self.saveRecord(data)
         except:
             print(O + "[" + C + "*" + O + "] " + R + "No Jobs Found" + W)
             sleep(1.5)
@@ -358,6 +377,23 @@ class Search_Job():
         else:
             self.driver.close()
             LinkedIn_Menu()
+
+    def saveRecord(self, data):
+        with open('jobs.csv', mode='a+', encoding='utf-8', newline='') as csvFile:
+            fieldnames = ["Company Name", "Job Name",
+                          "Company Location", "Job Link"]
+            writer = csv.DictWriter(csvFile, fieldnames=fieldnames)
+            if os.stat('jobs.csv').st_size == 0:
+                writer.writeheader()
+            writer.writerow(
+                {"Company Name": data[0], "Job Name": data[1], "Company Location": data[2], "Job Link": data[3]})
+
+    def scrolldown(self):
+        element = self.driver.find_element(
+            by=By.XPATH, value='/html/body')
+        for x in range(20):
+            element.send_keys(Keys.PAGE_DOWN)
+            sleep(0.5)
 
 
 def logo():
