@@ -413,8 +413,8 @@ def logo():
                     /_/                   
     """)
     print("")
-    print("              Done By: " + C + "Marwan Aljasmi" + W)
-    print("           https://github.com/ShyGorilla")
+    print("              Done By: " + C + "WarManX" + W)
+    print("           https://github.com/WarManX")
     print("")
 
 
